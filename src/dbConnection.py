@@ -1,7 +1,39 @@
+import dataclasses
+import pyodbc
 
-def main():
-    pass
 
+@dataclasses.dataclass
+class DbConnection:
+    def connect_to_db(self) -> pyodbc.Connection | None:
+        try:
+            return pyodbc.connect(
+                "DRIVER={ODBC Driver 17 for SQL Server};"
+                "SERVER=DESKTOP-F055SFP;"
+                "DATABASE=Stocks;"
+                "Trusted_Connection=yes;"
+            )
+        except pyodbc.Error as e:
+            print("Please check the connection to the database")
+            print(f"Error: {e}")
 
-if __name__ == "__main__":
-    main()
+    def execute_query(self, query: str, is_select: bool = True, *args) -> None | pyodbc.Row:
+        """
+        Executes a SQL query on the database.
+        :param query:  SQL query to be executed
+        :param is_select: True if the query is a SELECT statement, False otherwise
+        :param args: Additional arguments to be passed to the query
+        :return: None for non-SELECT queries, otherwise the result of the query
+        """
+        try:
+            with self.connect_to_db() as conn:
+                with conn.cursor() as cursor:
+                    if is_select:
+                        cursor.execute(query)
+                        query_result = cursor.fetchall()
+                        cols = [column[0] for column in cursor.description]
+                        return query_result, cols
+                    else:
+                        cursor.execute(query, *args)
+                        conn.commit()
+        except pyodbc.Error as e:
+            raise e
