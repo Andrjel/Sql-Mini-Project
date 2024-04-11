@@ -1,3 +1,15 @@
+USE master;
+GO
+
+IF NOT EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = N'Stocks')
+BEGIN
+    CREATE DATABASE Stocks;
+END
+GO
+
+USE Stocks;
+GO
+
 -- Created by Vertabelo (http://vertabelo.com)
 -- Last modification date: 2024-03-15 17:35:55.691
 
@@ -33,7 +45,7 @@ CREATE TABLE Quotes (
     Bid decimal(10,2)  NOT NULL,
     Ask decimal(10,2)  NOT NULL,
     Prevoius_Close decimal(10,2)  NOT NULL,
-    "Open" decimal(10,2)  NOT NULL,
+    [Open] decimal(10,2)  NOT NULL,
     Volume int  NOT NULL,
     Capitalization decimal(18,2)  NOT NULL,
     Last_Year_Min decimal(10,2)  NOT NULL,

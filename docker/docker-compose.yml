@@ -4,13 +4,5 @@ services:
       context: .
       dockerfile: sql/Dockerfile
     container_name: sqlserver
-    environment:
-      - SA_PASSWORD="Pa$$word123"
-      - ACCEPT_EULA=Y
     ports:
       - "1401:1433"
-    volumes:
-      - db_data:/var/opt/mssql
-
-volumes:
-  db_data:
