@@ -1,5 +1,6 @@
 import dataclasses
-import dotenv
+from dotenv import load_dotenv
+import os
 import requests
 
 
@@ -26,10 +27,9 @@ class ClientSync:
     """
     Polygon.io API client
     """
-    config = dotenv.dotenv_values(".env")
-    _api_key = "BH1TqYfUvL6xV1YWnpVdxiXYYZsikHM8"
-    # _endpoint = dotenv.dotenv_values(".env")['ENDPOINT']
-    _endpoint = "https://api.polygon.io"
+    load_dotenv(".env")
+    _api_key = os.getenv("API_KEY")
+    _endpoint = os.getenv("ENDPOINT")
 
     @fetch_data_decorator
     def get_all_tickers(self, ticker=None, active=True, limit=100, sort="ticker", order="asc"):
