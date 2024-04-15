@@ -1,10 +1,12 @@
-import extract.client
+import extract
+import transform
 
 
 def main():
-    c = extract.client.ClientSync()
+    c = extract.ClientSync()
     print(c.get_all_tickers())
     # print(c.get_aggregate_bars())
+    t = transform.Transformers()
 
 
 if __name__ == "__main__":
