@@ -6,11 +6,11 @@ import requests
 
 def fetch_data_decorator(func):
     """
-    Decorator to fetch data from the API
-    :param func: API function decorated
-    :return: wrapper function.
-    """
+    Decorator to fetch data from the API.
 
+    :param func: The API function being decorated.
+    :return: The wrapper function.
+    """
     def wrapper(self, *args):
         result = []
         response = func(self, *args)
@@ -32,7 +32,7 @@ class ClientSync:
     _endpoint = os.getenv("ENDPOINT")
 
     @fetch_data_decorator
-    def get_all_tickers(self, ticker=None, active=True, limit=100, sort="ticker", order="asc"):
+    def get_all_tickers(self, ticker=None, active=True, limit=1000, sort="ticker", order="asc"):
         """
         Fetches all active tickers from the Polygon.io API
         :return: list.
