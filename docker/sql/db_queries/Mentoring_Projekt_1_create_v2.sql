@@ -1,3 +1,14 @@
+USE master;
+GO
+
+IF NOT EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = N'Stocks')
+BEGIN
+    CREATE DATABASE Stocks;
+END
+GO
+
+USE Stocks;
+GO
 -- Created by Vertabelo (http://vertabelo.com)
 -- Last modification date: 2024-04-15 17:26:52.673
 
