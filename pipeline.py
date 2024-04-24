@@ -3,18 +3,11 @@ import transform
 
 
 def main():
-    # c = extract.ClientSync()
+    e = extract.ClientSync()
     t = transform.Transformers()
-    # raw_data = c.get_all_tickers()
-    # extract.write_json(raw_data)
-    # result = t.transform_tickers_response(raw_data)
-    # print(result)
-    raw_data = extract.read_json("data/2024-04-19/18-54-07.json")
-    result = t.transform_tickers_response(raw_data)
-    print(result.head())
-    
-
-
+    raw_data = extract.read_json("data/get_all_ticker_types/2024-04-24.json")
+    result = t.transform_ticker_types_response(raw_data)  
+    print(result.info())
 
 
 if __name__ == "__main__":

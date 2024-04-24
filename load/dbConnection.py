@@ -1,9 +1,19 @@
+from dotenv import load_dotenv
+import os
 import dataclasses
 import pyodbc
 
 
 @dataclasses.dataclass
 class DbConnection:
+    
+    load_dotenv()
+    _server: str =  os.getenv("SERVER")
+    _database: str = os.getenv("DATABASE")
+    _user: str = os.getenv("USER")
+    _password: str = os.getenv("PASSWORD")
+    _port: str = os.getenv("PORT")
+
     def connect_to_db(self) -> pyodbc.Connection | None:
         try:
             return pyodbc.connect(

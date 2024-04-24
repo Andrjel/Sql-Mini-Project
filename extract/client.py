@@ -13,6 +13,7 @@ def fetch_data_decorator(func):
     """
     def wrapper(self, *args):
         result = []
+        result.append({"name": func.__name__})
         response = func(self, *args)
         result.extend(response.get("results", []))
         if response.get("next_url", None):

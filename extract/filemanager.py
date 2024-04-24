@@ -19,32 +19,32 @@ def check_directory(func):
     """
     def wrapper(*args, **kwargs):
         try:
-            date = datetime.now().strftime("%Y-%m-%d")
-            directory = f"data/{date}"
+            date = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+            dest_folder = args[0].pop(0).get("name")
+            directory = f"data/{dest_folder}/"
             os.makedirs(directory, exist_ok=True)
-            return func(directory, *args, **kwargs)
+            dest_file = f"{directory}{date}.json"
+            return func(dest_file, *args, **kwargs)
         except Exception as e:
             print(f"Exception during file operation:\n{e}")
     return wrapper
 
 
 @check_directory
-def write_json(directory: str, data: dict) -> None:
+def write_json(dest_file: str, data: dict) -> None:
     """
-    Write data to a JSON file in the specified directory.
+    Write data to a JSON file.
 
     Args:
-        directory (str): The directory where the JSON file will be saved.
+        dest_file (str): The path to the JSON file.
         data (dict): The data to be written to the JSON file.
-
+    
     Returns:
         None
     """
     if not data:
         return
-    timestemp = datetime.now().strftime("%H-%M-%S")
-    target_file = f"{directory}/{timestemp}.json"
-    with open(target_file, "w") as file:
+    with open(dest_file, "w") as file:
         file.write(json.dumps(data, indent=4, sort_keys=True))
 
 
@@ -58,5 +58,9 @@ def read_json(file_path: str) -> dict:
     Returns:
         dict: The data read from the JSON file.
     """
-    with open(file_path, "r") as file:
-        return json.load(file)
+    try:
+        with open(file_path, "r") as file:
+            return json.load(file)
+    except Exception as e:
+        print(f"Exception during loading json file:\n{e}")
+        return {}
