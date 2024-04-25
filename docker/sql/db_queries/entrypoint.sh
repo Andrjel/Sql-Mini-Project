@@ -1,5 +1,4 @@
 #!/bin/bash
---------------------------------------------------------------
 # Configure SQL Server
 /opt/mssql/bin/mssql-conf set network.tcpport 1433
 # Start SQL Server
@@ -12,7 +11,7 @@ for i in {1..45}; do
     if /opt/mssql-tools/bin/sqlcmd -S localhost,1433 -U sa -P "Password!23" -Q "SELECT 1" &>/dev/null; then
         echo "SQL Server is up! Running the setup script."
         # Run the SQL setup script
-        /opt/mssql-tools/bin/sqlcmd -S localhost,1433 -U sa -P "Password!23" -i /usr/src/app/Mentoring_Projekt_1_create_v2.sql
+        /opt/mssql-tools/bin/sqlcmd -S localhost,1433 -U sa -P "Password!23" -i /usr/src/app/Mentoring_Projekt_1_create_v3.sql
         # Break the loop since we were able to connect and run the query
         break
     else

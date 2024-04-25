@@ -1,5 +1,16 @@
+USE master;
+GO
+
+IF NOT EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = N'Stocks')
+BEGIN
+    CREATE DATABASE Stocks;
+END
+GO
+
+USE Stocks;
+GO
 -- Created by Vertabelo (http://vertabelo.com)
--- Last modification date: 2024-04-24 18:24:17.851
+-- Last modification date: 2024-04-24 19:41:53.802
 
 -- tables
 -- Table: Currency
@@ -32,7 +43,7 @@ CREATE TABLE "Locales" (
 -- Table: Stock
 CREATE TABLE "Stock" (
     "Ticker" nvarchar(10)  NOT NULL,
-    "StockTypeCode" varchar(3)  NOT NULL,
+    "StockTypeCode" varchar(10)  NOT NULL,
     "StockExchangeId" varchar(10)  NOT NULL,
     "CurrencyCode" nvarchar(3)  NOT NULL,
     "LocaleCode" nvarchar(10)  NOT NULL,
@@ -45,7 +56,7 @@ CREATE TABLE "Stock" (
 
 -- Table: StockTypes
 CREATE TABLE "StockTypes" (
-    "Code" varchar(3)  NOT NULL,
+    "Code" varchar(10)  NOT NULL,
     "AssetClass" varchar(50)  NOT NULL,
     "Description" text  NOT NULL,
     CONSTRAINT "StockTypes_pk" PRIMARY KEY  ("Code")
@@ -90,4 +101,3 @@ ALTER TABLE "Stock" ADD CONSTRAINT "Stock_Stock_Type"
     REFERENCES "StockTypes" ("Code");
 
 -- End of file.
-
