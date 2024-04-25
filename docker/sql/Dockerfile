@@ -6,7 +6,7 @@ ENV ACCEPT_EULA=Y\
 EXPOSE 1433
 
 COPY sql/db_queries/entrypoint.sh /usr/src/app/
-COPY sql/db_queries/Mentoring_Projekt_1_create_v3.sql /usr/src/app/
+COPY sql/db_queries/Mentoring_Projekt_1_create_v4.sql /usr/src/app/
 
 USER root
 RUN chmod +x /usr/src/app/entrypoint.sh
