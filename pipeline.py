@@ -6,7 +6,7 @@ import load
 def main():
     e = extract.ClientSync()
     t = transform.Transformers()
-    l = load.dbConnection()
+    l = load.DbConnection()
     result = l.execute_query("SELECT * FROM Stock", True)
     print(result)
     # raw_data = extract.read_json("data/get_all_ticker_types/2024-04-24.json")

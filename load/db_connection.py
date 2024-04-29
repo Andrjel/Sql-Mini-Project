@@ -10,17 +10,19 @@ class DbConnection:
     load_dotenv()
     _server: str =  os.getenv("SERVER")
     _database: str = os.getenv("DATABASE")
-    _user: str = os.getenv("USER")
+    _user: str = os.getenv("DB_USER")
     _password: str = os.getenv("PASSWORD")
     _port: str = os.getenv("PORT")
 
     def connect_to_db(self) -> pyodbc.Connection | None:
         try:
+            connection_string = (f"DRIVER={{ODBC Driver 17 for SQL Server}};"
+                                f"SERVER={self._server},{self._port};"
+                                f"DATABASE={self._database};" 
+                                f"UID={self._user}; "
+                                f"PWD={self._password}") 
             return pyodbc.connect(
-                "DRIVER={ODBC Driver 17 for SQL Server};"
-                "SERVER=DESKTOP-F055SFP;"
-                "DATABASE=Stocks;"
-                "Trusted_Connection=yes;"
+                connection_string
             )
         except pyodbc.Error as e:
             print("Please check the connection to the database")
