@@ -1,36 +1,43 @@
-import simplejson as json
-import os
 from datetime import datetime
+import os
+import simplejson as json
 
 
-def check_directory(func):
+def handle_filemanager_error(func):
     """
-    A decorator function that creates a directory based on the current date and passes it as an argument to the decorated function.
+    A decorator function that helps handling filemanager error, and keep track on specific file name
 
     Args:
         func (function): The function to be decorated.
 
     Returns:
-        function: The decorated function.
+        wrapper: The decorated function.
 
     Raises:
         Exception: If there is an error during file operation.
 
     """
+    
     def wrapper(*args, **kwargs):
         try:
-            date = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-            dest_folder = args[0].pop(0).get("name")
-            directory = f"data/{dest_folder}/"
-            os.makedirs(directory, exist_ok=True)
-            dest_file = f"{directory}{date}.json"
-            return func(dest_file, *args, **kwargs)
+            if "write" in func.__name__:
+                date = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+                if dest_folder := args[0].pop(0).get("name"):
+                    directory = f"data/{dest_folder}/"
+                    os.makedirs(directory, exist_ok=True)
+                    dest_file = f"{directory}{date}.json"
+                    return func(dest_file, *args, **kwargs)
+                raise Exception("Wrong request data format.")
+            else:
+                if os.path.exists(args[0]):
+                    return func(*args)
+                raise Exception(f"File {args[0]} does not exist.")
         except Exception as e:
             print(f"Exception during file operation:\n{e}")
     return wrapper
 
 
-@check_directory
+@handle_filemanager_error
 def write_json(dest_file: str, data: dict) -> None:
     """
     Write data to a JSON file.
@@ -48,6 +55,7 @@ def write_json(dest_file: str, data: dict) -> None:
         file.write(json.dumps(data, indent=4, sort_keys=True))
 
 
+@handle_filemanager_error
 def read_json(file_path: str) -> dict:
     """
     Read data from a JSON file.
@@ -58,9 +66,5 @@ def read_json(file_path: str) -> dict:
     Returns:
         dict: The data read from the JSON file.
     """
-    try:
-        with open(file_path, "r") as file:
-            return json.load(file)
-    except Exception as e:
-        print(f"Exception during loading json file:\n{e}")
-        return {}
+    with open(file_path, "r") as file:
+        return json.load(file)
