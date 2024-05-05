@@ -10,12 +10,16 @@ def fetch_data_decorator(func):
 
     :param func: The API function being decorated.
     :return: The wrapper function.
+    :raises: Exception if the limit is reached.
     """
     def wrapper(self, *args):
         result = []
         result.append({"name": func.__name__})
         response = func(self, *args)
-        result.extend(response.get("results", []))
+        if response.get("results", None):
+            result.extend(response.get("results", []))
+        else:
+            raise Exception(f"Limit reached. {func.__name__}")     
         if response.get("next_url", None):
             result.extend(self.fetch_data(response.get("next_url")))
         return result
@@ -33,7 +37,7 @@ class ClientSync:
     _endpoint = os.getenv("ENDPOINT")
 
     @fetch_data_decorator
-    def get_all_tickers(self, ticker=None, active=True, limit=1000, sort="ticker", order="asc"):
+    def get_all_tickers(self, ticker=None, market="stocks", active=True, limit=1000, sort="ticker", order="asc"):
         """
         Fetches all active tickers from the Polygon.io API
         :return: list.
@@ -42,6 +46,7 @@ class ClientSync:
             f"{self._endpoint}/v3/reference/tickers",
             params={
                 "ticker": ticker,
+                "market": market,
                 "active": active,
                 "limit": limit,
                 "sort": sort,

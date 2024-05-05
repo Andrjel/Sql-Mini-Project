@@ -6,7 +6,9 @@ import pyodbc
 
 @dataclasses.dataclass
 class DbConnection:
-    
+    """
+    Class to connect to the database and execute queries
+    """
     load_dotenv()
     _server: str =  os.getenv("SERVER")
     _database: str = os.getenv("DATABASE")
@@ -15,6 +17,10 @@ class DbConnection:
     _port: str = os.getenv("PORT")
 
     def connect_to_db(self) -> pyodbc.Connection | None:
+        """
+        Connects to the database
+        :return: Connection object if successful, None otherwise
+        """
         try:
             connection_string = (f"DRIVER={{ODBC Driver 17 for SQL Server}};"
                                 f"SERVER={self._server},{self._port};"

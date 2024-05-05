@@ -46,7 +46,7 @@ CREATE TABLE Locales (
 CREATE TABLE Stock (
     Ticker nvarchar(10)  NOT NULL,
     StockTypeCode varchar(10)  NOT NULL,
-    StockExchangeId varchar(10)  NOT NULL,
+    StockExchangeCode varchar(10)  NOT NULL,
     CurrencyCode nvarchar(3)  NOT NULL,
     LocaleCode nvarchar(10)  NOT NULL,
     FIGI nvarchar(12)  NOT NULL,
@@ -64,11 +64,11 @@ CREATE TABLE StockTypes (
     CONSTRAINT StockTypes_pk PRIMARY KEY  (Code)
 );
 
--- Table: Stock_Exchange
-CREATE TABLE Stock_Exchange (
-    StockExchangeId varchar(10)  NOT NULL,
-    Locales_Code nvarchar(10)  NOT NULL,
-    CONSTRAINT Stock_Exchange_pk PRIMARY KEY  (StockExchangeId)
+-- Table: StockExchange
+CREATE TABLE StockExchange (
+    Code varchar(10)  NOT NULL,
+    LocaleCode nvarchar(10)  NOT NULL,
+    CONSTRAINT Stock_Exchange_pk PRIMARY KEY  (Code)
 );
 
 -- foreign keys
@@ -77,9 +77,9 @@ ALTER TABLE DailyQuote ADD CONSTRAINT DailyQuote_Stock
     FOREIGN KEY (Stock_Ticker)
     REFERENCES Stock (Ticker);
 
--- Reference: Stock_Exchange_Locales (table: Stock_Exchange)
-ALTER TABLE Stock_Exchange ADD CONSTRAINT Stock_Exchange_Locales
-    FOREIGN KEY (Locales_Code)
+-- Reference: Stock_Exchange_Locales (table: StockExchange)
+ALTER TABLE StockExchange ADD CONSTRAINT Stock_Exchange_Locales
+    FOREIGN KEY (LocaleCode)
     REFERENCES Locales (Code);
 
 -- Reference: Stock_Information_Currency (table: Stock)
@@ -94,8 +94,8 @@ ALTER TABLE Stock ADD CONSTRAINT Stock_Locales
 
 -- Reference: Stock_Stock_Exchange (table: Stock)
 ALTER TABLE Stock ADD CONSTRAINT Stock_Stock_Exchange
-    FOREIGN KEY (StockExchangeId)
-    REFERENCES Stock_Exchange (StockExchangeId);
+    FOREIGN KEY (StockExchangeCode)
+    REFERENCES StockExchange (Code);
 
 -- Reference: Stock_Stock_Type (table: Stock)
 ALTER TABLE Stock ADD CONSTRAINT Stock_Stock_Type
