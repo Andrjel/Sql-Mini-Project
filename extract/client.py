@@ -1,50 +1,62 @@
 import dataclasses
-from dotenv import load_dotenv
-import os
+import aiohttp
+import asyncio
 import requests
 
 
 def fetch_data_decorator(func):
+    """Decorator to fetch data from the API.
+    
+    Arguments:
+    func -- The API function being decorated.
+    
+    Return:
+    wrapper -- The wrapper function.
     """
-    Decorator to fetch data from the API.
-
-    :param func: The API function being decorated.
-    :return: The wrapper function.
-    :raises: Exception if the limit is reached.
-    """
-    def wrapper(self, *args):
+    async def wrapper(self, *args):
+        """Wrapper function
+        
+        Arguments:
+        self - ClientAsync - Client async object,
+        args - list - request parameters
+        
+        Return:
+        result - list - list of requests results
+        """
         result = []
         result.append({"name": func.__name__})
-        response = func(self, *args)
-        if response.get("results", None):
-            result.extend(response.get("results", []))
-        else:
-            raise Exception(f"Limit reached. {func.__name__}")     
+        response = await func(self, *args)  
         if response.get("next_url", None):
-            result.extend(self.fetch_data(response.get("next_url")))
+            result.extend(await self.fetch_data(response.get("next_url")))
         return result
-
     return wrapper
 
 
 @dataclasses.dataclass
-class ClientSync:
+class ClientAsync:
     """
-    Polygon.io API client
+    Polygon.io API async client
     """
-    load_dotenv(".env")
-    _api_key = os.getenv("API_KEY")
-    _endpoint = os.getenv("ENDPOINT")
+    
+    _api_key: str = "BH1TqYfUvL6xV1YWnpVdxiXYYZsikHM8"
+    _endpoint: str = "https://api.polygon.io"
 
     @fetch_data_decorator
-    def get_all_tickers(self, ticker=None, market="stocks", active=True, limit=1000, sort="ticker", order="asc"):
+    async def get_all_tickers(self, ticker: str = None, market: str = "stocks", active: bool =True, limit: int = 100, sort: str = "ticker", order: str = "asc"):
+        """Get all active tickers from the Polygon.io API.
+        
+        Keyword arguments:
+        ticker - str - ticker symbol (default None)
+        market - str - market type (default "stocks")
+        active - bool - is ticker active (default True)
+        limit - int - results limit on page (default 100, max 1000)
+        sort - str - sort by param (default "ticker")
+        order - str - order keyword (default "asc") ("asc", "desc")
+        
+        Return value:
+        dict - response object, empty if response failed
         """
-        Fetches all active tickers from the Polygon.io API
-        :return: list.
-        """
-        return requests.get(
-            f"{self._endpoint}/v3/reference/tickers",
-            params={
+        params={
                 "ticker": ticker,
                 "market": market,
                 "active": active,
@@ -52,38 +64,60 @@ class ClientSync:
                 "sort": sort,
                 "order": order,
                 "apiKey": self._api_key
-            }
-        ).json()
+        }
+        params = {k: (str(v).lower() if isinstance(v, bool) else v) for k, v in params.items() if v is not None}
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{self._endpoint}/v3/reference/tickers",
+                params=params
+            ) as response:
+                return await response.json()
 
     @fetch_data_decorator
-    def get_all_ticker_types(self, asset_class=None, locale=None):
+    async def get_all_ticker_types(self, asset_class: str = None, locale: str = None):
+        """Get all ticker types from the Polygon.io API.
+        
+        Keyword arguments:
+        asset_class - str - asset class,
+        locale - str - locale origin (us, global)
+        
+        Return:
+        dict - response object, empty if response failed
         """
-        Fetches all ticker types from the Polygon.io API
-        :return: list.
-        """
-        return requests.get(
-            f"{self._endpoint}/v3/reference/tickers/types",
-            params={
-                "asset_class": asset_class,
-                "locale": locale,
-                "apiKey": self._api_key
-            }
-        ).json()
+        params = {
+            "asset_class": asset_class,
+            "locale": locale,
+            "apiKey": self._api_key
+        }
+        params = {k: v for k, v in params.items() if v is not None}
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{self._endpoint}/v3/reference/tickers/types",
+                params=params
+            ) as response:
+                return await response.json()
 
     @fetch_data_decorator
-    def get_stock_dividend(self, ticker):
+    async def get_stock_dividend(self, ticker="AAPL"):
+        """Get dividend information for certain ticker from Polygon.io API.
+        
+        Keyword argument:
+        ticker - str - company ticker (default "AAPL")
+        
+        Return
+        dict - response object, empty if response failed
         """
-        Get dividend information for certain stock
-        :param ticker: Company ticker
-        :return: list
-        """
-        return requests.get(
-            f"{self._endpoint}/v3/reference/dividends",
-            params={
-                "ticker": ticker,
-                "apiKey": self._api_key
-            }
-        ).json()
+        params = {
+            "ticker": ticker,
+            "apiKet": self._api_key
+        }
+        params = {k: v for k, v in params.items() if v is not None}
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{self._endpoint}/v3/reference/dividends",
+                params=params
+            ) as response:
+                return await response.json()
 
     @fetch_data_decorator
     def get_aggregate_bars(self, ticker, multiplier, timespan, date_from, date_to, sort="asc", limit=5000):
@@ -122,15 +156,30 @@ class ClientSync:
             }
         ).json()
 
-    def fetch_data(self, url):
+    async def fetch_data(self, url):
         """
         Support method to fetch data from the API
         :param url: next URL to fetch data from (next page)
         :return: list
         """
         result = []
-        response = requests.get(url, params={"apiKey": self._api_key})
-        result.extend(response.json().get("results", {}))
-        if response.json().get("next_url", None):
-            result.extend(self.fetch_data(response.json().get("next_url")))
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                url,
+                params={
+                    "apiKey": self._api_key
+                }
+            ) as response:
+                data = await response.json()
+                result.extend(data.get("results", {}))
+                if next_url := data.get("next_url", None):
+                    result.extend(await self.fetch_data(next_url))
         return result
+    
+async def main():
+    client = ClientAsync()
+    tickers = await client.get_all_tickers()
+    print(tickers)
+
+if __name__ == "__main__":
+    asyncio.run(main())
